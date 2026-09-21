@@ -76,7 +76,8 @@ class VisitorTrackingMiddleware:
                         longitude=location_data.get('lon'),
                     )
             except Exception as e:
-                logger.error(f"Error tracking visit: {e}")
+                # Missing migrations / tables should not spam error logs in early boot
+                logger.warning("Error tracking visit: %s", e)
 
         response = self.get_response(request)
         return response

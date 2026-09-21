@@ -269,10 +269,17 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Firebase Cloud Messaging (FCM) configuration
-FIREBASE_SERVICE_ACCOUNT_PATH = os.getenv(
-    'FIREBASE_SERVICE_ACCOUNT_PATH',
-    str(BASE_DIR / 'secrets' / 'firebase-service-account.json')
+_firebase_path = os.getenv(
+    "FIREBASE_SERVICE_ACCOUNT_PATH",
+    str(BASE_DIR / "secrets" / "firebase-service-account.json"),
 )
+_firebase_candidate = Path(_firebase_path)
+if not _firebase_candidate.is_absolute():
+    # Resolve against backend root (Docker WORKDIR=/app and local backend/)
+    _firebase_candidate = BASE_DIR / _firebase_path
+if not _firebase_candidate.exists() and _firebase_path.startswith("backend/"):
+    _firebase_candidate = BASE_DIR / _firebase_path[len("backend/") :]
+FIREBASE_SERVICE_ACCOUNT_PATH = str(_firebase_candidate)
 
 CLOUDINARY_CLOUD_NAME = env("CLOUDINARY_CLOUD_NAME")
 CLOUDINARY_API_KEY = env("CLOUDINARY_API_KEY")

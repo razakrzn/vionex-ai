@@ -60,6 +60,14 @@ class NotificationService:
                 )
                 
                 if firebase_service_account_path:
+                    from pathlib import Path
+                    if not Path(firebase_service_account_path).exists():
+                        logger.warning(
+                            "Firebase service account file not found at %s. "
+                            "FCM notifications will be disabled.",
+                            firebase_service_account_path,
+                        )
+                        return False
                     cred = credentials.Certificate(firebase_service_account_path)
                     firebase_admin.initialize_app(cred)
                     cls._firebase_initialized = True
@@ -71,7 +79,7 @@ class NotificationService:
                     )
                     return False
             except Exception as e:
-                logger.error(f"Failed to initialize Firebase: {str(e)}")
+                logger.warning(f"Failed to initialize Firebase: {str(e)}")
                 return False
     
     @classmethod

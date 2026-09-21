@@ -17,8 +17,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY backend/requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
+COPY docker/entrypoint.backend.sh /entrypoint.backend.sh
+RUN chmod +x /entrypoint.backend.sh
+
 COPY backend/ /app/
 
 EXPOSE 8000
 
+ENTRYPOINT ["/entrypoint.backend.sh"]
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
