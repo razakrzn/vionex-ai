@@ -1,6 +1,11 @@
 // src/lib/firebase.ts
-import { initializeApp } from "firebase/app";
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import { FirebaseApp, initializeApp } from "firebase/app";
+import {
+  Messaging,
+  getMessaging,
+  getToken,
+  isSupported,
+} from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -12,40 +17,71 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const requiredFirebaseKeys = [
+  "apiKey",
+  "authDomain",
+  "projectId",
+  "messagingSenderId",
+  "appId",
+] as const;
 
-// Initialize Messaging
-export const messaging = getMessaging(app);
+export const isFirebaseConfigured = requiredFirebaseKeys.every(
+  (key) => Boolean(String(firebaseConfig[key] ?? "").trim())
+);
+
+let app: FirebaseApp | null = null;
+let messaging: Messaging | null = null;
+
+if (isFirebaseConfigured) {
+  app = initializeApp(firebaseConfig);
+}
+
+export const getFirebaseMessaging = async (): Promise<Messaging | null> => {
+  if (!isFirebaseConfigured || !app) {
+    return null;
+  }
+
+  const supported = await isSupported().catch(() => false);
+  if (!supported) {
+    return null;
+  }
+
+  if (!messaging) {
+    messaging = getMessaging(app);
+  }
+
+  return messaging;
+};
 
 /**
  * Function to request permission and get the FCM Token
  */
 export const requestForToken = async () => {
   try {
-    // 1. Check if notifications are supported
     if (!("Notification" in window)) {
       return null;
     }
 
-    // 2. Request permission from the user
-    const permission = await Notification.requestPermission();
-    
-    if (permission === 'granted') {
-      // 3. Get the token
-      const token = await getToken(messaging, { 
-        vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY
-      }).catch(() => null);
-      
-      if (token) {
-        return token;
-      } else {
-        return null;
-      }
-    } else {
+    const messagingInstance = await getFirebaseMessaging();
+    if (!messagingInstance) {
       return null;
     }
-  } catch (error) {
+
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") {
+      return null;
+    }
+
+    const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
+    if (!vapidKey) {
+      return null;
+    }
+
+    return (
+      (await getToken(messagingInstance, { vapidKey }).catch(() => null)) ||
+      null
+    );
+  } catch {
     return null;
   }
 };

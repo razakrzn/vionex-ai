@@ -1,10 +1,6 @@
 from rest_framework import serializers
 from apps.users.models import User
-
-
-def get_storage_key(file_field):
-    """Return the provider-agnostic object key stored for a file field."""
-    return getattr(file_field, "name", None) if file_field else None
+from config.storage import get_storage_url as get_storage_key
 
 
 class UserListSerializer(serializers.ModelSerializer):

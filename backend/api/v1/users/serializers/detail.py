@@ -1,11 +1,7 @@
 from rest_framework import serializers
 from apps.users.models import User, get_or_create_system_role
 from apps.countries.models import Country
-
-
-def get_storage_key(file_field):
-    """Return the provider-agnostic object key stored for a file field."""
-    return getattr(file_field, "name", None) if file_field else None
+from config.storage import get_storage_url as get_storage_key
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
@@ -159,7 +155,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
         Remove seller-specific fields if user role is seeker
         Remove verification_status for admins
         Strip spaces from mobile_number and whatsapp_number
-        Return profile_picture and document_uploads as stored object keys
+        Return profile_picture and document_uploads as Cloudinary URLs
         Only show is_subscribed for current user or admin users
         """
         representation = super().to_representation(instance)
@@ -171,11 +167,11 @@ class UserDetailSerializer(serializers.ModelSerializer):
         if representation.get('whatsapp_number'):
             representation['whatsapp_number'] = representation['whatsapp_number'].replace(' ', '')
         
-        # Ensure file fields serialize as provider-agnostic storage keys.
+        # Ensure file fields serialize as Cloudinary URLs.
         if 'profile_picture' in representation and representation['profile_picture']:
             representation['profile_picture'] = get_storage_key(instance.profile_picture)
         
-        # Ensure file fields serialize as provider-agnostic storage keys.
+        # Ensure file fields serialize as Cloudinary URLs.
         if 'document_uploads' in representation and representation['document_uploads']:
             representation['document_uploads'] = get_storage_key(instance.document_uploads)
         

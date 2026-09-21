@@ -889,7 +889,7 @@ class PropertyArchive(models.Model):
             developer_name=property_obj.developer_name,
             project_name=property_obj.project_name,
             amenities=amenity_names,
-            main_image_url=property_obj.main_image.name if property_obj.main_image else None,
+            main_image_url=property_obj.main_image.url if property_obj.main_image else None,
             social_media=property_obj.social_media or {},
             owner_info=owner_info,
             is_approved=property_obj.is_approved,

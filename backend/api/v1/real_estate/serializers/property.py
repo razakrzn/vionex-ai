@@ -3,6 +3,7 @@ from django.contrib.gis.geos import Point
 import logging
 import json
 from apps.real_estate.models import Property, PropertyGallery, ListingStatus
+from config.storage import get_storage_url as get_storage_key
 from .property_type import PropertyTypeListSerializer
 from .purpose import PurposeListSerializer
 from .furnishing_status import FurnishingStatusListSerializer
@@ -11,11 +12,6 @@ from .occupant_type import OccupantTypeListSerializer
 from .amenity import AmenityListSerializer
 
 logger = logging.getLogger(__name__)
-
-
-def get_storage_key(file_field):
-    """Return the provider-agnostic object key stored for a file field."""
-    return getattr(file_field, "name", None) if file_field else None
 
 
 class GalleryImagesToDeleteField(serializers.ListField):
@@ -51,7 +47,7 @@ class GalleryImagesToDeleteField(serializers.ListField):
 
 
 class MainImageField(serializers.ImageField):
-    """Custom ImageField that returns the stored object key for reading."""
+    """Custom ImageField that returns the Cloudinary URL for reading."""
     
     def to_representation(self, value):
         return get_storage_key(value)

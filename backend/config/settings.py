@@ -67,14 +67,15 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "cloudinary_storage",
     "django.contrib.staticfiles",
+    "cloudinary",
     "django.contrib.gis",  # Required for PointField and GIS functionality
 
     "rest_framework",
     "drf_spectacular",
     "corsheaders",
     "django_filters",
-    "storages",
 
     "apps.users",
     "apps.countries",
@@ -126,15 +127,70 @@ WSGI_APPLICATION = "config.wsgi.application"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 # GDAL and GEOS Library Paths (required for PointField and GIS functionality)
-# Only set paths on macOS (local development). On Linux (production), Django will auto-detect.
-if platform.system() == 'Darwin':  # macOS
-    GDAL_LIBRARY_PATH = '/opt/homebrew/opt/gdal/lib/libgdal.dylib'
-    GEOS_LIBRARY_PATH = '/opt/homebrew/opt/geos/lib/libgeos_c.dylib'
+# Prefer explicit env overrides, then platform defaults / common install locations.
+def _first_existing(*candidates):
+    for candidate in candidates:
+        if candidate and Path(candidate).exists():
+            return str(Path(candidate))
+    return None
+
+
+def _find_windows_dll(bin_dirs, prefixes):
+    for bin_dir in bin_dirs:
+        if not bin_dir:
+            continue
+        directory = Path(bin_dir)
+        if not directory.is_dir():
+            continue
+        for prefix in prefixes:
+            matches = sorted(directory.glob(f"{prefix}*.dll"), reverse=True)
+            if matches:
+                return str(matches[0])
+    return None
+
+
+_system = platform.system()
+_env_gdal = os.getenv("GDAL_LIBRARY_PATH")
+_env_geos = os.getenv("GEOS_LIBRARY_PATH")
+
+if _system == "Darwin":  # macOS
+    GDAL_LIBRARY_PATH = _env_gdal or _first_existing(
+        "/opt/homebrew/opt/gdal/lib/libgdal.dylib",
+        "/usr/local/opt/gdal/lib/libgdal.dylib",
+    )
+    GEOS_LIBRARY_PATH = _env_geos or _first_existing(
+        "/opt/homebrew/opt/geos/lib/libgeos_c.dylib",
+        "/usr/local/opt/geos/lib/libgeos_c.dylib",
+    )
+elif _system == "Windows":
+    _win_bin_dirs = [
+        os.getenv("OSGEO4W_ROOT", "") + r"\bin" if os.getenv("OSGEO4W_ROOT") else None,
+        r"C:\OSGeo4W\bin",
+        r"C:\OSGeo4W64\bin",
+        r"C:\Program Files\GDAL",
+        r"C:\Program Files (x86)\GDAL",
+    ]
+    # GISInternals winget install often lands under LocalAppData\Programs
+    _local_programs = Path(os.environ.get("LOCALAPPDATA", "")) / "Programs"
+    if _local_programs.is_dir():
+        _win_bin_dirs.extend(str(p) for p in _local_programs.glob("**/bin") if p.is_dir())
+        _win_bin_dirs.extend(str(p) for p in _local_programs.glob("GDAL*") if p.is_dir())
+
+    GDAL_LIBRARY_PATH = _env_gdal or _find_windows_dll(_win_bin_dirs, ("gdal", "libgdal"))
+    GEOS_LIBRARY_PATH = _env_geos or _find_windows_dll(_win_bin_dirs, ("geos_c", "libgeos_c"))
+
+    # Ensure DLL dependencies resolve when Django loads GDAL/GEOS
+    for bin_dir in _win_bin_dirs:
+        if bin_dir and Path(bin_dir).is_dir():
+            os.environ["PATH"] = str(Path(bin_dir)) + os.pathsep + os.environ.get("PATH", "")
+            try:
+                os.add_dll_directory(str(Path(bin_dir)))
+            except (AttributeError, FileNotFoundError, OSError):
+                pass
 else:
-    # On Linux (Render), let Django auto-detect the libraries
-    # They should be installed system-wide via apt-get or similar
-    GDAL_LIBRARY_PATH = None
-    GEOS_LIBRARY_PATH = None
+    # Linux / containers: rely on system packages unless overridden
+    GDAL_LIBRARY_PATH = _env_gdal
+    GEOS_LIBRARY_PATH = _env_geos
 
 # Use environment variable for database connection (external PostgreSQL provider)
 DATABASE_URL = os.environ.get('DATABASE_URL')
@@ -218,37 +274,28 @@ FIREBASE_SERVICE_ACCOUNT_PATH = os.getenv(
     str(BASE_DIR / 'secrets' / 'firebase-service-account.json')
 )
 
-STORAGE_ACCESS_KEY_ID = env("STORAGE_ACCESS_KEY_ID")
-STORAGE_SECRET_ACCESS_KEY = env("STORAGE_SECRET_ACCESS_KEY")
-STORAGE_BUCKET_NAME = env("STORAGE_BUCKET_NAME")
-STORAGE_REGION_NAME = env("STORAGE_REGION_NAME")
+CLOUDINARY_CLOUD_NAME = env("CLOUDINARY_CLOUD_NAME")
+CLOUDINARY_API_KEY = env("CLOUDINARY_API_KEY")
+CLOUDINARY_API_SECRET = env("CLOUDINARY_API_SECRET")
 
-STORAGE_ENDPOINT_URL = env("STORAGE_ENDPOINT_URL", default=None)
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": CLOUDINARY_CLOUD_NAME,
+    "API_KEY": CLOUDINARY_API_KEY,
+    "API_SECRET": CLOUDINARY_API_SECRET,
+    "SECURE": True,
+    "PREFIX": os.getenv("CLOUDINARY_PREFIX", "vionex"),
+}
 
-STORAGE_CUSTOM_DOMAIN = env("STORAGE_CUSTOM_DOMAIN", default=None)
-STORAGE_QUERYSTRING_AUTH = False
-STORAGE_DEFAULT_ACL = None
-
-# Media storage
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# Media storage (Cloudinary)
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 # Max upload size in MB (default: 10MB), used by upload validation/logging
-MEDIA_MAX_FILE_SIZE_MB = int(os.getenv('MEDIA_MAX_FILE_SIZE_MB', 10))
+MEDIA_MAX_FILE_SIZE_MB = int(os.getenv("MEDIA_MAX_FILE_SIZE_MB", 10))
 
 STORAGES = {
     "default": {
-        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
-        "OPTIONS": {
-            "access_key": STORAGE_ACCESS_KEY_ID,
-            "secret_key": STORAGE_SECRET_ACCESS_KEY,
-            "bucket_name": STORAGE_BUCKET_NAME,
-            "region_name": STORAGE_REGION_NAME,
-            "endpoint_url": STORAGE_ENDPOINT_URL,
-            "custom_domain": STORAGE_CUSTOM_DOMAIN,
-            "querystring_auth": STORAGE_QUERYSTRING_AUTH,
-            "default_acl": STORAGE_DEFAULT_ACL,
-        },
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",

@@ -1,0 +1,82 @@
+2026/09/21 15:51:42 Starting OSGeo4W install, version 2.579
+2026/09/21 15:51:42 using locales .1252
+2026/09/21 15:51:42 io_stream_cygfile: fopen(/etc/setup/setup.rc) failed 2 No such file or directory
+2026/09/21 15:51:42 Current Directory: C:\Users\sujee\AppData\Local\Temp
+2026/09/21 15:51:42 Root Directory: C:\Users\sujee\AppData\Local\Programs\OSGeo4W
+Could not open Service control manager
+2026/09/21 15:51:42 root: C:\Users\sujee\AppData\Local\Programs\OSGeo4W
+2026/09/21 15:51:42 Selected local directory: C:\Users\sujee\AppData\Local\Temp
+2026/09/21 15:51:42 Menu name: OSGeo4W
+2026/09/21 15:51:42 net: Preconfig
+Cached mirror list unavailable
+get_url_to_membuf https://download.osgeo.org/osgeo4w/ssl/mirrors.lst
+getUrlToStream https://download.osgeo.org/osgeo4w/ssl/mirrors.lst
+User-Agent: default is "OSGeo4W-Setup/2.579 (Windows NT 6.2.9200;Win64;0409)"
+2026/09/21 15:51:44 site: https://download.osgeo.org/osgeo4w/v2/
+get_url_to_membuf https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini.bz2
+getUrlToStream https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini.bz2
+2026/09/21 15:51:44 HTTP status 404 fetching https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini.bz2
+getUrlToStream failed!
+get_url_to_membuf failed!
+get_url_to_membuf https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini
+getUrlToStream https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini
+2026/09/21 15:51:45 HTTP status 404 fetching https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini
+getUrlToStream failed!
+get_url_to_membuf failed!
+2026/09/21 15:51:45 mbox note: Unable to get setup_test.ini from <https://download.osgeo.org/osgeo4w/v2/>
+2026/09/21 15:51:45 unattended_mode is set at mbox: returning default value
+2026/09/21 15:51:45 site: https://download.osgeo.org/osgeo4w/v2/
+get_url_to_membuf https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini.bz2
+getUrlToStream https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini.bz2
+2026/09/21 15:51:45 HTTP status 404 fetching https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini.bz2
+getUrlToStream failed!
+get_url_to_membuf failed!
+get_url_to_membuf https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini
+getUrlToStream https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini
+2026/09/21 15:51:46 HTTP status 404 fetching https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini
+getUrlToStream failed!
+get_url_to_membuf failed!
+2026/09/21 15:51:46 mbox note: Unable to get setup_test.ini from <https://download.osgeo.org/osgeo4w/v2/>
+2026/09/21 15:51:46 unattended_mode is set at mbox: returning default value
+2026/09/21 15:51:46 site: https://download.osgeo.org/osgeo4w/v2/
+get_url_to_membuf https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini.bz2
+getUrlToStream https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini.bz2
+2026/09/21 15:51:47 HTTP status 404 fetching https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini.bz2
+getUrlToStream failed!
+get_url_to_membuf failed!
+get_url_to_membuf https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini
+getUrlToStream https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini
+2026/09/21 15:51:47 HTTP status 404 fetching https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini
+getUrlToStream failed!
+get_url_to_membuf failed!
+2026/09/21 15:51:47 mbox note: Unable to get setup_test.ini from <https://download.osgeo.org/osgeo4w/v2/>
+2026/09/21 15:51:47 unattended_mode is set at mbox: returning default value
+2026/09/21 15:51:47 site: https://download.osgeo.org/osgeo4w/v2/
+get_url_to_membuf https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini.bz2
+getUrlToStream https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini.bz2
+2026/09/21 15:51:47 HTTP status 404 fetching https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini.bz2
+getUrlToStream failed!
+get_url_to_membuf failed!
+get_url_to_membuf https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini
+getUrlToStream https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini
+2026/09/21 15:51:48 HTTP status 404 fetching https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini
+getUrlToStream failed!
+get_url_to_membuf failed!
+2026/09/21 15:51:48 mbox note: Unable to get setup_test.ini from <https://download.osgeo.org/osgeo4w/v2/>
+2026/09/21 15:51:48 unattended_mode is set at mbox: returning default value
+2026/09/21 15:51:48 site: https://download.osgeo.org/osgeo4w/v2/
+get_url_to_membuf https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini.bz2
+getUrlToStream https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini.bz2
+2026/09/21 15:51:48 HTTP status 404 fetching https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini.bz2
+getUrlToStream failed!
+get_url_to_membuf failed!
+get_url_to_membuf https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini
+getUrlToStream https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini
+2026/09/21 15:51:49 HTTP status 404 fetching https://download.osgeo.org/osgeo4w/v2/x86_64/setup_test.ini
+getUrlToStream failed!
+get_url_to_membuf failed!
+2026/09/21 15:51:49 mbox note: Unable to get setup_test.ini from <https://download.osgeo.org/osgeo4w/v2/>
+2026/09/21 15:51:49 unattended_mode is set at mbox: returning default value
+2026/09/21 15:51:49 download/verify error in unattended_mode: out of retries
+2026/09/21 15:51:49 note: Installation incomplete.  Check C:\Users\sujee\OneDrive\Documents\razak\vionex-ai\backend\setup.log.full for details
+2026/09/21 15:51:49 Ending OSGeo4W install

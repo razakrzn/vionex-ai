@@ -2,6 +2,7 @@ from rest_framework import serializers
 import json
 import logging
 from apps.fitness.models import Gym, GymImage
+from config.storage import get_storage_url as get_storage_key
 from .gym_type import GymTypeListSerializer
 from .facility import FacilityListSerializer
 from .membership_package import MembershipPackageListSerializer
@@ -9,13 +10,8 @@ from .membership_package import MembershipPackageListSerializer
 logger = logging.getLogger(__name__)
 
 
-def get_storage_key(file_field):
-    """Return the provider-agnostic object key stored for a file field."""
-    return getattr(file_field, "name", None) if file_field else None
-
-
 class MainImageField(serializers.ImageField):
-    """Custom ImageField that returns the stored object key for reading."""
+    """Custom ImageField that returns the Cloudinary URL for reading."""
     
     def to_representation(self, value):
         return get_storage_key(value)

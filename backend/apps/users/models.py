@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager, Permission
 from django.db import models
 from django.conf import settings
 from django.utils.text import slugify
+from cloudinary_storage.storage import RawMediaCloudinaryStorage
 import secrets
 import string
 
@@ -209,9 +210,10 @@ class User(AbstractUser):
     license_number = models.CharField(max_length=100, null=True, blank=True)
     emirates_id_number = models.CharField(max_length=50, null=True, blank=True)
     document_uploads = models.FileField(
-        upload_to="documents/", 
-        blank=True, 
+        upload_to="documents/",
+        blank=True,
         null=True,
+        storage=RawMediaCloudinaryStorage(),
     )
     about_me = models.TextField(null=True, blank=True)
     is_mobile_verified = models.BooleanField(default=False)

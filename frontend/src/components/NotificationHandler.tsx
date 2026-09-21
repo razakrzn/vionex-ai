@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { onMessage } from "firebase/messaging";
-import { messaging } from "@/lib/firebase";
+import { getFirebaseMessaging } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { getCurrentUserApi } from "@/services/admin/users";
 import { useAuthStore } from "@/stores/authStore";
@@ -55,52 +55,58 @@ const NotificationHandler = () => {
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    // Listen for foreground messages
-    const unsubscribe = onMessage(messaging, async (payload) => {
-      const title = payload.notification?.title || "New Notification";
-      const body = payload.notification?.body || "";
-      const type = payload.data?.type;
+    let unsubscribe: (() => void) | undefined;
+    let cancelled = false;
 
-      // 1. Play notification tone (best-effort; may be blocked by browser policies)
-      playNotificationSound();
+    (async () => {
+      const messaging = await getFirebaseMessaging();
+      if (!messaging || cancelled) return;
 
-      // 2. Show toast notification
-      toast({
-        title: title,
-        description: body,
-      });
+      unsubscribe = onMessage(messaging, async (payload) => {
+        const title = payload.notification?.title || "New Notification";
+        const body = payload.notification?.body || "";
+        const type = payload.data?.type;
 
-      // 3. Refresh user data for any notification to ensure state is synced
-      try {
-        const response = await getCurrentUserApi();
-        if (response && "data" in response) {
-          const responseData = response.data;
-          // The API returns { success: true, data: { ...user } }
-          if (responseData && responseData.data) {
-            updateUser(responseData.data as any);
-            
-            // Show special message for verification
-            if (type === "VERIFICATION_APPROVED") {
-              toast({
-                title: "Profile Verified!",
-                description: "Your account has been approved. You now have full access.",
-              });
+        playNotificationSound();
+
+        toast({
+          title: title,
+          description: body,
+        });
+
+        try {
+          const response = await getCurrentUserApi();
+          if (response && "data" in response) {
+            const responseData = response.data;
+            if (responseData && responseData.data) {
+              updateUser(responseData.data as any);
+
+              if (type === "VERIFICATION_APPROVED") {
+                toast({
+                  title: "Profile Verified!",
+                  description:
+                    "Your account has been approved. You now have full access.",
+                });
+              }
             }
           }
+        } catch (error) {
+          // Ignore user refresh errors silently
         }
-      } catch (error) {
-        // Ignore user refresh errors silently
-      }
-      
-      // Dispatch a custom event so other components can react if needed
-      window.dispatchEvent(new CustomEvent("fcmMessageReceived", { detail: payload }));
-    });
 
-    return () => unsubscribe();
+        window.dispatchEvent(
+          new CustomEvent("fcmMessageReceived", { detail: payload })
+        );
+      });
+    })();
+
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
   }, [isAuthenticated, toast, updateUser]);
 
-  return null; // This component doesn't render anything
+  return null;
 };
 
 export default NotificationHandler;
-
