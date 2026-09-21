@@ -1,0 +1,11 @@
+customHeaders:
+  - pattern: "/assets/*.mp4"
+    headers:
+      - key: "Content-Type"
+        value: "video/mp4"
+  - pattern: "/assets/*.webm"
+    headers:
+      - key: "Content-Type"
+        value: "video/webm"
+
+

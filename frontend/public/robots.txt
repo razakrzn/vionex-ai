@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Allow: /favicon.ico
+Allow: /favicon.png
+
+# Sitemaps
+Sitemap: https://vionex-ai.com/sitemap.xml

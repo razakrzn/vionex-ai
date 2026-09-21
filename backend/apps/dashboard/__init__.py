@@ -1,0 +1,1 @@
+# Django 3.2+ auto-discovers AppConfig from apps.py
